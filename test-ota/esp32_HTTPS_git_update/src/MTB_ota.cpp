@@ -1,13 +1,10 @@
 #include <MTB_ota.h>
 
-TickTask checkUpdateTick(60000L);
+TickTask checkUpdateTick(reCheckTime);
 
+String FirmwareVer    = String(FW_version);
+String URL_fw_Version = String(URL_fw_Ver);
 
-String FirmwareVer = String(FW_version);
-
-
-String URL_fw_Version = "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/fw_version.txt";
-#define URL_fw_Bin "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/firmware.bin"
 
 const char *rootCACertificate =
     "-----BEGIN CERTIFICATE-----\n"
@@ -33,6 +30,35 @@ const char *rootCACertificate =
     "vEsXCS+0yx5DaMkHJ8HSXPfqIbloEpw8nL+e/IBcm2PN7EeqJSdnoDfzAIJ9VNep\n"
     "+OkuE6N36B9K\n"
     "-----END CERTIFICATE-----\n";
+
+struct Button
+{
+  const uint8_t PIN;
+  uint32_t numberKeyPresses;
+  bool pressed;
+};
+
+Button button_boot = {
+    0,
+    0,
+    false};
+
+/*void IRAM_ATTR isr(void* arg) {
+    Button* s = static_cast<Button*>(arg);
+    s->numberKeyPresses += 1;
+    s->pressed = true;
+}*/
+
+void IRAM_ATTR isr()
+{
+  button_boot.numberKeyPresses += 1;
+  button_boot.pressed = true;
+}
+
+void init_bootKey(){
+  pinMode(button_boot.PIN, INPUT);
+  attachInterrupt(button_boot.PIN, isr, RISING);
+}
 
 
 void firmwareUpdate(void)
@@ -104,13 +130,14 @@ int FirmwareVersionCheck(void)
       {
         Serial.print("  ->Device already on latest firmware version: ");
         Serial.println(FirmwareVer);
+        Serial.println();
         return 0;
       }
       else
       {
 
+        Serial.print("  ->New firmware detected: ");
         Serial.println(payload);
-        Serial.println("  ->New firmware detected");
         return 1;
       }
     }
@@ -120,6 +147,13 @@ int FirmwareVersionCheck(void)
 
 void repeatedCall()
 {
+
+  if (button_boot.pressed)
+  { //to connect wifi via Android esp touch app
+    Serial.println("Firmware update Starting..");
+    firmwareUpdate();
+    button_boot.pressed = false;
+  }
 
   if(checkUpdateTick.Update()){
     if (FirmwareVersionCheck())
