@@ -34,10 +34,12 @@ void setup()
       firmwareUpdate();
     }
 }
+
+
 void loop()
 {
   if(printVerTick.Update()){
     Serial.printf("-> [%d]Active fw version: %s, Build ver: %s\n", countTick++, FW_version,Build_version);
   }
-  repeatedCall();
+  OTArepeatedCall();
 }

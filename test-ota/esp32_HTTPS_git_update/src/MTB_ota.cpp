@@ -145,7 +145,7 @@ int FirmwareVersionCheck(void)
 }
 
 
-void repeatedCall()
+void OTArepeatedCall()
 {
 
   if (button_boot.pressed)

@@ -1,0 +1,1 @@
+{"fwver":"20201123_215159","type":"esp32httpsOTA","signature":"422e4d4554415f6d7462","fwurl":"https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/firmware.bin"}

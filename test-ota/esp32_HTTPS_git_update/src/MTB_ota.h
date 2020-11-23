@@ -9,4 +9,4 @@ void IRAM_ATTR isr();
 void init_bootKey();
 void firmwareUpdate(void);
 int FirmwareVersionCheck(void);
-void repeatedCall();
+void OTArepeatedCall();
