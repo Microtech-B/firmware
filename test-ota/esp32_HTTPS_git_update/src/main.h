@@ -8,7 +8,8 @@
 #include <utility.h>
 #include <version.h>
 
-#define signature      "422e4d4554415f6d7462"
+#define signature       "40622e6d457461615f68747470734f54413d31"
+#define Product_Type    "esp32httpsOTA"
 
 //#define FW_version      VERSION_DATETIME
 #define FW_version      "20201123_215159"

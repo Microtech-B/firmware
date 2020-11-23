@@ -179,18 +179,20 @@ int FirmwareAutoUpdate(void)
 
 
         const size_t bufferSize = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
+        //const size_t bufferSize = JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
         DynamicJsonBuffer jsonBuffer(bufferSize);
         JsonObject &JSONencoder = jsonBuffer.parseObject(payload);
 
-        String fwversion  = JSONencoder["fwver"].as<char *>();
-        String type       = JSONencoder["type"].as<char *>();
-        String Signature  = JSONencoder["signature"].as<char *>();
-        String fwurl      = JSONencoder["fwurl"].as<char *>();
+        String fwversion  = JSONencoder["esp32httpsOTA"]["fwversion"].as<char *>();
+        //String uSens_RevA     = JSONencoder["uSens_Rev.A"].as<char *>();
   
-        Serial.print("  ->fwversion : ");   Serial.println(fwversion); 
-        Serial.print("  ->type : ");        Serial.println(type); 
-        Serial.print("  ->Signature : ");   Serial.println(Signature); 
-        Serial.print("  ->fwurl : ");       Serial.println(fwurl); 
+        // Serial.print("  ->esp32httpsOTA : ");   Serial.println(esp32httpsOTA);
+        // Serial.print("  ->uSens_Rev.A : ");     Serial.println(uSens_RevA);
+
+         Serial.print("  ->[esp32httpsOTA][fwversion] : ");   Serial.println(fwversion); 
+        // Serial.print("  ->type : ");        Serial.println(type); 
+        // Serial.print("  ->Signature : ");   Serial.println(Signature); 
+        // Serial.print("  ->fwurl : ");       Serial.println(fwurl); 
 
       }
       else
