@@ -1,7 +1,10 @@
 #include <MTB_ota.h>
 
+TickTask printVerTick(1000L);
+
 char ssid[20] = "MTB_tp";
 char password[20] = "1234567890mt";
+int countTick;
 
 struct Button
 {
@@ -63,5 +66,10 @@ void loop()
     firmwareUpdate();
     button_boot.pressed = false;
   }
+
+  if(printVerTick.Update()){
+    Serial.printf("-> [%d]Active fw version: %s, Build ver: %s\n", countTick++, FW_version,Build_version);
+  }
+
   repeatedCall();
 }

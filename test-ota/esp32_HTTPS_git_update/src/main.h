@@ -7,6 +7,7 @@
 #include <version.h>
 
 
-#define FW_version  VERSION_DATETIME
+#define FW_version      VERSION_DATETIME
+#define Build_version   VERSION
 
 #define LED_BUILTIN 2

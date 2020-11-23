@@ -1,10 +1,10 @@
 #include <MTB_ota.h>
 
 TickTask checkUpdateTick(60000L);
-TickTask printVerTick(1000L);
+
 
 String FirmwareVer = String(FW_version);
-int countTick;
+
 
 String URL_fw_Version = "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/fw_version.txt";
 #define URL_fw_Bin "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/firmware.bin"
@@ -126,9 +126,5 @@ void repeatedCall()
     {
       firmwareUpdate();
     }
-  }
-
-  if(printVerTick.Update()){
-    //Serial.printf("-> [%d]Active fw version: %s\n", countTick++, FirmwareVer);
   }
 }
