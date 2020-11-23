@@ -1,10 +1,10 @@
 
 #ifndef BUILD_NUMBER
-  #define BUILD_NUMBER "21"
+  #define BUILD_NUMBER "22"
 #endif
 #ifndef VERSION
-  #define VERSION "0.1.21"
+  #define VERSION "0.1.22"
 #endif
 #ifndef VERSION_DATETIME
-  #define VERSION_DATETIME "20201123_203621"
+  #define VERSION_DATETIME "20201123_204634"
 #endif

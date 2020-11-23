@@ -85,7 +85,8 @@ int FirmwareVersionCheck(void)
       if (httpCode == HTTP_CODE_OK) // if version received
       {
         payload = https.getString(); // save received version
-        Serial.printf("  ->code:%d, payload: %s\n",httpCode,payload);
+        Serial.printf("  ->code:%d, payload:",httpCode);
+        Serial.println(payload);
       }
       else
       {
@@ -101,7 +102,8 @@ int FirmwareVersionCheck(void)
       payload.trim();
       if (payload.equals(FirmwareVer))
       {
-        Serial.printf("  ->Device already on latest firmware version:%s\n", FirmwareVer);
+        Serial.print("  ->Device already on latest firmware version: ");
+        Serial.println(FirmwareVer);
         return 0;
       }
       else
