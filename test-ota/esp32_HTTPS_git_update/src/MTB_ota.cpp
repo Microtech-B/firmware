@@ -178,21 +178,44 @@ int FirmwareAutoUpdate(void)
         Serial.println(payload);
 
 
-        const size_t bufferSize = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
-        //const size_t bufferSize = JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
-        DynamicJsonBuffer jsonBuffer(bufferSize);
-        JsonObject &JSONencoder = jsonBuffer.parseObject(payload);
+        // const size_t bufferSize = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
+        // //const size_t bufferSize = JSON_OBJECT_SIZE(1) + 2*JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(12) + 390;
+        // DynamicJsonBuffer jsonBuffer(bufferSize);
+        // JsonObject &JSONencoder = jsonBuffer.parseObject(payload);
 
-        String fwversion  = JSONencoder["esp32httpsOTA"]["fwversion"].as<char *>();
+        
+        //https://arduinojson.org/v5/assistant/
+        const size_t capacity = JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(4) + 470;
+        DynamicJsonBuffer jsonBuffer(capacity);
+
+        //const char* json = "{\"admin\":\"META\",\"esp32httpsOTA\":{\"fwver\":\"20201123_215159\",\"signature\":\"40622e6d457461615f68747470734f54413d31\",\"fwurl\":\"https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/firmware_20201123_215159.bin\",\"description\":\"-\"},\"uSens_Rev.A\":{\"fwver\":\"0.3.2\",\"signature\":\"40622e6d457461615f7553656e733d32\",\"fwurl\":\"https://raw.githubusercontent.com/Microtech-B/firmware/main/uSens-RevA_pico32/all_fw_bin/firmware_0.3.2.bin\",\"description\":\"-\"}}";
+
+        JsonObject& root = jsonBuffer.parseObject(payload);
+
+        const char* admin = root["admin"]; // "META"
+
+        JsonObject& esp32httpsOTA = root["esp32httpsOTA"];
+        const char* esp32httpsOTA_fwver = esp32httpsOTA["fwver"]; // "20201123_215159"
+        const char* esp32httpsOTA_signature = esp32httpsOTA["signature"]; // "40622e6d457461615f68747470734f54413d31"
+        const char* esp32httpsOTA_fwurl = esp32httpsOTA["fwurl"]; // "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/firmware_20201123_215159.bin"
+        const char* esp32httpsOTA_description = esp32httpsOTA["description"]; // "-"
+
+        JsonObject& uSens_Rev_A = root["uSens_Rev.A"];
+        const char* uSens_Rev_A_fwver = uSens_Rev_A["fwver"]; // "0.3.2"
+        const char* uSens_Rev_A_signature = uSens_Rev_A["signature"]; // "40622e6d457461615f7553656e733d32"
+        const char* uSens_Rev_A_fwurl = uSens_Rev_A["fwurl"]; // "https://raw.githubusercontent.com/Microtech-B/firmware/main/uSens-RevA_pico32/all_fw_bin/firmware_0.3.2.bin"
+        const char* uSens_Rev_A_description = uSens_Rev_A["description"]; // "-"
+
+
+        // String admin  = JSONencoder["admin"].as<char *>();
+        // String fwversion  = JSONencoder["esp32httpsOTA"]["fwversion"].as<char *>();
         //String uSens_RevA     = JSONencoder["uSens_Rev.A"].as<char *>();
-  
-        // Serial.print("  ->esp32httpsOTA : ");   Serial.println(esp32httpsOTA);
-        // Serial.print("  ->uSens_Rev.A : ");     Serial.println(uSens_RevA);
 
-         Serial.print("  ->[esp32httpsOTA][fwversion] : ");   Serial.println(fwversion); 
-        // Serial.print("  ->type : ");        Serial.println(type); 
-        // Serial.print("  ->Signature : ");   Serial.println(Signature); 
-        // Serial.print("  ->fwurl : ");       Serial.println(fwurl); 
+        Serial.print("  ->admin : ");   Serial.println(admin); 
+        Serial.print("  ->esp32httpsOTA_fwver : ");   Serial.println(esp32httpsOTA_fwver); 
+        Serial.print("  ->esp32httpsOTA_signature  : ");   Serial.println(esp32httpsOTA_signature ); 
+        Serial.print("  ->esp32httpsOTA_fwurl : ");   Serial.println(esp32httpsOTA_fwurl); 
+        Serial.print("  ->esp32httpsOTA_description : ");   Serial.println(esp32httpsOTA_description); 
 
       }
       else
