@@ -1,6 +1,7 @@
 #include <MTB_ota.h>
 
 TickTask checkUpdateTick(reCheckTime);
+TickTask autoUpdateTick(10000L);
 
 String FirmwareVer    = String(FW_version);
 String URL_fw_Version = String(URL_fw_Ver);
@@ -83,6 +84,7 @@ void firmwareUpdate(void)
     break;
   }
 }
+
 int FirmwareVersionCheck(void)
 {
   String payload;
@@ -141,6 +143,84 @@ int FirmwareVersionCheck(void)
         return 1;
       }
     }
+    
+  }
+}
+
+int FirmwareAutoUpdate(void)
+{
+  String payload;
+  int httpCode;
+  String fwurl = "";
+  fwurl += URL_autoUpdate;
+  fwurl += "?";
+  fwurl += String(rand());
+  Serial.println(fwurl);
+  WiFiClientSecure *client = new WiFiClientSecure;
+
+  if (client)
+  {
+    client->setCACert(rootCACertificate);
+
+    // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
+    HTTPClient https;
+
+    if (https.begin(*client, fwurl))
+    { // HTTPS
+      Serial.print("[HTTPS] GET...\n");
+      // start connection and send HTTP header
+      httpCode = https.GET();
+
+      if (httpCode == HTTP_CODE_OK) // if version received
+      {
+        payload = https.getString(); // save received version
+        Serial.printf("  ->code:%d, payload:",httpCode);
+        Serial.println(payload);
+
+
+        const size_t bufferSize = JSON_OBJECT_SIZE(1) + JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
+        DynamicJsonBuffer jsonBuffer(bufferSize);
+        JsonObject &JSONencoder = jsonBuffer.parseObject(payload);
+
+        String fwversion  = JSONencoder["fwver"].as<char *>();
+        String type       = JSONencoder["type"].as<char *>();
+        String Signature  = JSONencoder["signature"].as<char *>();
+        String fwurl      = JSONencoder["fwurl"].as<char *>();
+  
+        Serial.print("  ->fwversion : ");   Serial.println(fwversion); 
+        Serial.print("  ->type : ");        Serial.println(type); 
+        Serial.print("  ->Signature : ");   Serial.println(Signature); 
+        Serial.print("  ->fwurl : ");       Serial.println(fwurl); 
+
+      }
+      else
+      {
+        Serial.print("  ->error in downloading version file:");
+        Serial.println(httpCode);
+      }
+      https.end();
+    }
+    delete client;
+
+    // if (httpCode == HTTP_CODE_OK) // if version received
+    // {
+    //   payload.trim();
+    //   if (payload.equals(FirmwareVer))
+    //   {
+    //     Serial.print("  ->Device already on latest firmware version: ");
+    //     Serial.println(FirmwareVer);
+    //     Serial.println();
+    //     return 0;
+    //   }
+    //   else
+    //   {
+
+    //     Serial.print("  ->New firmware detected: ");
+    //     Serial.println(payload);
+    //     return 1;
+    //   }
+    // }
+    
   }
 }
 
@@ -160,5 +240,9 @@ void OTArepeatedCall()
     {
       firmwareUpdate();
     }
+  }
+
+  if(autoUpdateTick.Update()){
+      FirmwareAutoUpdate();
   }
 }
