@@ -1,6 +1,10 @@
 #include <MTB_ota.h>
 
+TickTask checkUpdateTick(60000L);
+TickTask printVerTick(1000L);
+
 String FirmwareVer = String(FW_version);
+int countTick;
 
 String URL_fw_Version = "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/fw_version.txt";
 #define URL_fw_Bin "https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/auto_update/firmware.bin"
@@ -61,6 +65,7 @@ int FirmwareVersionCheck(void)
   fwurl += URL_fw_Version;
   fwurl += "?";
   fwurl += String(rand());
+  Serial.printf("\nCheck new firmware every %lu sec: ",checkUpdateTick.getTick());
   Serial.println(fwurl);
   WiFiClientSecure *client = new WiFiClientSecure;
 
@@ -73,7 +78,6 @@ int FirmwareVersionCheck(void)
 
     if (https.begin(*client, fwurl))
     { // HTTPS
-      Serial.println("\nCheck new firmware");
       Serial.print("[HTTPS] GET...\n");
       // start connection and send HTTP header
       httpCode = https.GET();
@@ -81,10 +85,11 @@ int FirmwareVersionCheck(void)
       if (httpCode == HTTP_CODE_OK) // if version received
       {
         payload = https.getString(); // save received version
+        Serial.printf("  ->code:%d, payload: %s\n",httpCode,payload);
       }
       else
       {
-        Serial.print("error in downloading version file:");
+        Serial.print("  ->error in downloading version file:");
         Serial.println(httpCode);
       }
       https.end();
@@ -96,49 +101,32 @@ int FirmwareVersionCheck(void)
       payload.trim();
       if (payload.equals(FirmwareVer))
       {
-        Serial.printf("\nDevice already on latest firmware version:%s\n", FirmwareVer);
+        Serial.printf("  ->Device already on latest firmware version:%s\n", FirmwareVer);
         return 0;
       }
       else
       {
 
         Serial.println(payload);
-        Serial.println("New firmware detected");
+        Serial.println("  ->New firmware detected");
         return 1;
       }
     }
   }
 }
 
-unsigned long previousMillis = 0; // will store last time LED was updated
-unsigned long previousMillis_2 = 0;
-const long interval = 10000;
-const long mini_interval = 200;
+
 void repeatedCall()
 {
-  static int num = 0;
-  unsigned long currentMillis = millis();
-  if ((currentMillis - previousMillis) >= interval)
-  {
-    // save the last time you blinked the LED
-    previousMillis = currentMillis;
+
+  if(checkUpdateTick.Update()){
     if (FirmwareVersionCheck())
     {
       firmwareUpdate();
     }
   }
-  if ((currentMillis - previousMillis_2) >= mini_interval)
-  {
-    previousMillis_2 = currentMillis;
-    Serial.print("idle loop...");
-    Serial.println(num++);
-    Serial.print("active fw version:");
-    Serial.println(FirmwareVer);
-    Serial.println();
-    if (millis() % 1000 == 0)
-    {
-      Serial.println();
-      num = 0;
-    }
+
+  if(printVerTick.Update()){
+    //Serial.printf("-> [%d]Active fw version: %s\n", countTick++, FirmwareVer);
   }
 }

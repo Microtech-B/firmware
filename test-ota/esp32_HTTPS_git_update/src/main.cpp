@@ -38,7 +38,7 @@ void connect_wifi()
 
   Serial.println("");
   Serial.println("WiFi connected");
-  Serial.println("IP address: ");
+  Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
 
@@ -51,6 +51,9 @@ void setup()
   Serial.println(FW_version);
   pinMode(LED_BUILTIN, OUTPUT);
   connect_wifi();
+  if (FirmwareVersionCheck()){
+      firmwareUpdate();
+    }
 }
 void loop()
 {
