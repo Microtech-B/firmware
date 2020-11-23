@@ -3,9 +3,9 @@
 TickTask checkUpdateTick(reCheckTime);
 TickTask autoUpdateTick(10000L);
 
-String FirmwareVer    = String(FW_version);
+String FirmwareVer = String(FW_version);
 String URL_fw_Version = String(URL_fw_Ver);
-
+String URL_Firmware;
 
 const char *rootCACertificate =
     "-----BEGIN CERTIFICATE-----\n"
@@ -56,18 +56,18 @@ void IRAM_ATTR isr()
   button_boot.pressed = true;
 }
 
-void init_bootKey(){
+void init_bootKey()
+{
   pinMode(button_boot.PIN, INPUT);
   attachInterrupt(button_boot.PIN, isr, RISING);
 }
-
 
 void firmwareUpdate(void)
 {
   WiFiClientSecure client;
   client.setCACert(rootCACertificate);
   //ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
-  t_httpUpdate_return ret = ESPhttpUpdate.update(URL_fw_Bin);
+  t_httpUpdate_return ret = ESPhttpUpdate.update(URL_Firmware);
 
   switch (ret)
   {
@@ -93,7 +93,7 @@ int FirmwareVersionCheck(void)
   fwurl += URL_fw_Version;
   fwurl += "?";
   fwurl += String(rand());
-  Serial.printf("\nCheck new firmware every %lu sec: ",checkUpdateTick.getTick());
+  Serial.printf("\nCheck new firmware every %lu sec: ", checkUpdateTick.getTick());
   Serial.println(fwurl);
   WiFiClientSecure *client = new WiFiClientSecure;
 
@@ -113,7 +113,7 @@ int FirmwareVersionCheck(void)
       if (httpCode == HTTP_CODE_OK) // if version received
       {
         payload = https.getString(); // save received version
-        Serial.printf("  ->code:%d, payload:",httpCode);
+        Serial.printf("  ->code:%d, payload:", httpCode);
         Serial.println(payload);
       }
       else
@@ -124,37 +124,40 @@ int FirmwareVersionCheck(void)
       https.end();
     }
     delete client;
+  }
 
-    if (httpCode == HTTP_CODE_OK) // if version received
+  if (httpCode == HTTP_CODE_OK) // if version received
+  {
+    payload.trim();
+    if (payload.equals(FirmwareVer))
     {
-      payload.trim();
-      if (payload.equals(FirmwareVer))
-      {
-        Serial.print("  ->Device already on latest firmware version: ");
-        Serial.println(FirmwareVer);
-        Serial.println();
-        return 0;
-      }
-      else
-      {
-
-        Serial.print("  ->New firmware detected: ");
-        Serial.println(payload);
-        return 1;
-      }
+      Serial.print("  ->Device already on latest firmware version: ");
+      Serial.println(FirmwareVer);
+      Serial.println();
+      return 0;
     }
-    
+    else
+    {
+
+      Serial.print("  ->New firmware detected: ");
+      Serial.println(payload);
+      return 1;
+    }
   }
 }
+
+const size_t capacity = JSON_OBJECT_SIZE(3) + 2 * JSON_OBJECT_SIZE(5) + 510;
+DynamicJsonBuffer jsonBuffer(capacity);
 
 int FirmwareAutoUpdate(void)
 {
   String payload;
+  int stat;
   int httpCode;
   String fwurl = "";
   fwurl += URL_autoUpdate;
-  // fwurl += "?";
-  // fwurl += String(rand());
+  fwurl += "?";
+  fwurl += String(rand());
   Serial.println(fwurl);
   WiFiClientSecure *client = new WiFiClientSecure;
 
@@ -174,35 +177,8 @@ int FirmwareAutoUpdate(void)
       if (httpCode == HTTP_CODE_OK) // if version received
       {
         payload = https.getString(); // save received version
-        Serial.printf("  ->code:%d, payload:",httpCode);
+        Serial.printf("  ->code:%d, payload:", httpCode);
         Serial.println(payload);
-
-        //create by : https://arduinojson.org/v5/assistant/
-
-        const size_t capacity = JSON_OBJECT_SIZE(3) + 2*JSON_OBJECT_SIZE(4) + 470;
-        DynamicJsonBuffer jsonBuffer(capacity);
-        JsonObject& root = jsonBuffer.parseObject(payload);
-
-        const char* admin = root["admin"];
-
-        JsonObject& esp32httpsOTA = root["esp32httpsOTA"];
-        const char* esp32httpsOTA_fwver = esp32httpsOTA["fwver"];
-        const char* esp32httpsOTA_signature = esp32httpsOTA["signature"];
-        const char* esp32httpsOTA_fwurl = esp32httpsOTA["fwurl"]; 
-        const char* esp32httpsOTA_description = esp32httpsOTA["description"];
-
-        JsonObject& uSens_Rev_A = root["uSens_Rev.A"];
-        const char* uSens_Rev_A_fwver = uSens_Rev_A["fwver"];
-        const char* uSens_Rev_A_signature = uSens_Rev_A["signature"];
-        const char* uSens_Rev_A_fwurl = uSens_Rev_A["fwurl"];
-        const char* uSens_Rev_A_description = uSens_Rev_A["description"];
-
-        Serial.print("  ->admin : ");   Serial.println(admin); 
-        Serial.print("  ->esp32httpsOTA_fwver : ");   Serial.println(esp32httpsOTA_fwver); 
-        Serial.print("  ->esp32httpsOTA_signature  : ");   Serial.println(esp32httpsOTA_signature ); 
-        Serial.print("  ->esp32httpsOTA_fwurl : ");   Serial.println(esp32httpsOTA_fwurl); 
-        Serial.print("  ->esp32httpsOTA_description : ");   Serial.println(esp32httpsOTA_description); 
-
       }
       else
       {
@@ -212,29 +188,73 @@ int FirmwareAutoUpdate(void)
       https.end();
     }
     delete client;
-
-    // if (httpCode == HTTP_CODE_OK) // if version received
-    // {
-    //   payload.trim();
-    //   if (payload.equals(FirmwareVer))
-    //   {
-    //     Serial.print("  ->Device already on latest firmware version: ");
-    //     Serial.println(FirmwareVer);
-    //     Serial.println();
-    //     return 0;
-    //   }
-    //   else
-    //   {
-
-    //     Serial.print("  ->New firmware detected: ");
-    //     Serial.println(payload);
-    //     return 1;
-    //   }
-    // }
-    
   }
-}
 
+  if (httpCode == HTTP_CODE_OK) // if version received
+  {
+    payload.trim();
+    //create by : https://arduinojson.org/v5/assistant/
+    JsonObject &root = jsonBuffer.parseObject(payload);
+
+    String admin = root["admin"].as<char *>();
+
+    JsonObject &esp32httpsOTA = root["esp32httpsOTA"];
+    String esp32httpsOTA_type = esp32httpsOTA["type"].as<char *>();
+    String esp32httpsOTA_fwver = esp32httpsOTA["fwver"].as<char *>();
+    String esp32httpsOTA_signature = esp32httpsOTA["signature"].as<char *>();
+    String esp32httpsOTA_fwurl = esp32httpsOTA["fwurl"].as<char *>();
+    String esp32httpsOTA_description = esp32httpsOTA["description"].as<char *>();
+
+    // Serial.print("  ->admin : ");
+    // Serial.println(admin);
+    // Serial.print("  ->esp32httpsOTA_type : ");
+    // Serial.println(esp32httpsOTA_type);
+    // Serial.print("  ->esp32httpsOTA_fwver : ");
+    // Serial.println(esp32httpsOTA_fwver);
+    // Serial.print("  ->esp32httpsOTA_signature  : ");
+    // Serial.println(esp32httpsOTA_signature);
+    // Serial.print("  ->esp32httpsOTA_fwurl : ");
+    // Serial.println(esp32httpsOTA_fwurl);
+    // Serial.print("  ->esp32httpsOTA_description : ");
+    // Serial.println(esp32httpsOTA_description);
+
+    // JsonObject& uSens_Rev_A = root["uSens_Rev.A"];
+    // const char* uSens_Rev_A_fwver = uSens_Rev_A["fwver"];
+    // const char* uSens_Rev_A_signature = uSens_Rev_A["signature"];
+    // const char* uSens_Rev_A_fwurl = uSens_Rev_A["fwurl"];
+    // const char* uSens_Rev_A_description = uSens_Rev_A["description"];
+
+    if (esp32httpsOTA_type.equals(String(Product_Type)))
+    {
+      Serial.print("  ->>> Product type OK : ");
+      Serial.println(Product_Type);
+
+      if (esp32httpsOTA_signature.equals(String(Board_signature)))
+      {
+        Serial.print("  ->>> signature OK : ");
+        Serial.println(Board_signature);
+
+        if (esp32httpsOTA_fwver.equals(String(FW_version)))
+        {
+          Serial.print("  ->>>Device already on latest firmware version: ");
+          Serial.println(FW_version);
+          Serial.println();
+          stat = 0;
+        }
+        else
+        {
+          Serial.print("  ->>>New firmware detected: ");
+          Serial.println(esp32httpsOTA_fwver);
+          Serial.print("  ->>>URL download: ");
+          Serial.println(esp32httpsOTA_fwver);
+          URL_Firmware = esp32httpsOTA_fwurl;
+          stat = 1;
+        }
+      }
+    }
+  }
+  return (stat);
+}
 
 void OTArepeatedCall()
 {
@@ -246,14 +266,18 @@ void OTArepeatedCall()
     button_boot.pressed = false;
   }
 
-  if(checkUpdateTick.Update()){
-    if (FirmwareVersionCheck())
+  // if(checkUpdateTick.Update()){
+  //   if (FirmwareVersionCheck())
+  //   {
+  //     firmwareUpdate();
+  //   }
+  // }
+
+  if (autoUpdateTick.Update())
+  {
+    if (FirmwareAutoUpdate())
     {
       firmwareUpdate();
     }
-  }
-
-  if(autoUpdateTick.Update()){
-      FirmwareAutoUpdate();
   }
 }

@@ -8,11 +8,11 @@
 #include <utility.h>
 #include <version.h>
 
-#define signature       "40622e6d457461615f68747470734f54413d31"
-#define Product_Type    "esp32httpsOTA"
+#define Board_signature         "40622e6d457461615f68747470734f54413d31"
+#define Product_Type            "esp32httpsOTA"
 
-//#define FW_version      VERSION_DATETIME
-#define FW_version      "20201123_215159"
-#define Build_version   VERSION
+#define FW_version            VERSION_DATETIME
+//#define FW_version              "20201123_215159"
+#define Build_version           VERSION
 
-#define LED_BUILTIN 2
+#define LED_BUILTIN             2

@@ -30,7 +30,8 @@ void setup()
   Serial.println(FW_version);
   pinMode(LED_BUILTIN, OUTPUT);
   connect_wifi();
-  if (FirmwareVersionCheck()){
+  
+  if (FirmwareAutoUpdate()){
       firmwareUpdate();
     }
 }
