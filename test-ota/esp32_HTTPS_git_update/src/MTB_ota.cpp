@@ -2,10 +2,11 @@
 
 TickTask checkUpdateTick(reCheckTime);
 TickTask autoUpdateTick(10000L);
-
-String FirmwareVer = String(FW_version);
-String URL_fw_Version = String(URL_fw_Ver);
 String URL_Firmware;
+
+// String FirmwareVer = String(FW_version);
+String URL_fw_Version = URL_Firmware;
+
 
 const char *rootCACertificate =
     "-----BEGIN CERTIFICATE-----\n"
@@ -85,66 +86,66 @@ void firmwareUpdate(void)
   }
 }
 
-int FirmwareVersionCheck(void)
-{
-  String payload;
-  int httpCode;
-  String fwurl = "";
-  fwurl += URL_fw_Version;
-  fwurl += "?";
-  fwurl += String(rand());
-  Serial.printf("\nCheck new firmware every %lu sec: ", checkUpdateTick.getTick());
-  Serial.println(fwurl);
-  WiFiClientSecure *client = new WiFiClientSecure;
+// int FirmwareVersionCheck(void)
+// {
+//   String payload;
+//   int httpCode;
+//   String fwurl = "";
+//   fwurl += URL_fw_Version;
+//   fwurl += "?";
+//   fwurl += String(rand());
+//   Serial.printf("\nCheck new firmware every %lu sec: ", checkUpdateTick.getTick());
+//   Serial.println(fwurl);
+//   WiFiClientSecure *client = new WiFiClientSecure;
 
-  if (client)
-  {
-    client->setCACert(rootCACertificate);
+//   if (client)
+//   {
+//     client->setCACert(rootCACertificate);
 
-    // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
-    HTTPClient https;
+//     // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
+//     HTTPClient https;
 
-    if (https.begin(*client, fwurl))
-    { // HTTPS
-      Serial.print("[HTTPS] GET...\n");
-      // start connection and send HTTP header
-      httpCode = https.GET();
+//     if (https.begin(*client, fwurl))
+//     { // HTTPS
+//       Serial.print("[HTTPS] GET...\n");
+//       // start connection and send HTTP header
+//       httpCode = https.GET();
 
-      if (httpCode == HTTP_CODE_OK) // if version received
-      {
-        payload = https.getString(); // save received version
-        Serial.printf("  ->code:%d, payload:", httpCode);
-        Serial.println(payload);
-      }
-      else
-      {
-        Serial.print("  ->error in downloading version file:");
-        Serial.println(httpCode);
-      }
-      https.end();
-    }
-    delete client;
-  }
+//       if (httpCode == HTTP_CODE_OK) // if version received
+//       {
+//         payload = https.getString(); // save received version
+//         Serial.printf("  ->code:%d, payload:", httpCode);
+//         Serial.println(payload);
+//       }
+//       else
+//       {
+//         Serial.print("  ->error in downloading version file:");
+//         Serial.println(httpCode);
+//       }
+//       https.end();
+//     }
+//     delete client;
+//   }
 
-  if (httpCode == HTTP_CODE_OK) // if version received
-  {
-    payload.trim();
-    if (payload.equals(FirmwareVer))
-    {
-      Serial.print("  ->Device already on latest firmware version: ");
-      Serial.println(FirmwareVer);
-      Serial.println();
-      return 0;
-    }
-    else
-    {
+//   if (httpCode == HTTP_CODE_OK) // if version received
+//   {
+//     payload.trim();
+//     if (payload.equals(FirmwareVer))
+//     {
+//       Serial.print("  ->Device already on latest firmware version: ");
+//       Serial.println(FirmwareVer);
+//       Serial.println();
+//       return 0;
+//     }
+//     else
+//     {
 
-      Serial.print("  ->New firmware detected: ");
-      Serial.println(payload);
-      return 1;
-    }
-  }
-}
+//       Serial.print("  ->New firmware detected: ");
+//       Serial.println(payload);
+//       return 1;
+//     }
+//   }
+// }
 
 const size_t capacity = JSON_OBJECT_SIZE(3) + 2 * JSON_OBJECT_SIZE(5) + 510;
 DynamicJsonBuffer jsonBuffer(capacity);
@@ -246,7 +247,7 @@ int FirmwareAutoUpdate(void)
           Serial.print("  ->>>New firmware detected: ");
           Serial.println(esp32httpsOTA_fwver);
           Serial.print("  ->>>URL download: ");
-          Serial.println(esp32httpsOTA_fwver);
+          Serial.println(esp32httpsOTA_fwurl);
           URL_Firmware = esp32httpsOTA_fwurl;
           stat = 1;
         }
