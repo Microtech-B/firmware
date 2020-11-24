@@ -1,1 +1,1 @@
-{"esp32httpsOTA":{"type":"esp32httpsOTA","fwver":"20201124_152052","signature":"40622e6d457461615f68747470734f54413d31","fwurl":"https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/all_fw_bin/firmware_20201124_152052.bin","description":"edit auto scripts"}}
+{"esp32httpsOTA":{"type":"esp32httpsOTA","fwver":"20201124_205547","signature":"40622e6d457461615f68747470734f54413d31","fwurl":"https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/all_fw_bin/firmware_20201124_205547.bin","description":"edit auto scripts"}}
