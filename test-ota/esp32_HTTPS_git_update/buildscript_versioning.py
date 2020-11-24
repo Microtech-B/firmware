@@ -1,11 +1,12 @@
 import datetime
+import binascii
 Import ("env")
 tm = datetime.datetime.today()
 
 FILENAME_BUILDNO = 'versioning'
+FILENAME_VERCONFIG = 'verconfig'
 FILENAME_VERSION_H = 'include/version.h'
 version = '0.1.'
-# str(tm.year)[-2:]+('0'+str(tm.month))[-2:]+('0'+str(tm.day))[-2:] + ('0'+str(tm.hour))[-2:] + ('0'+str(tm.minute))[-2:] + ('0'+str(tm.second))[-2:]+ '_'
 
 build_no = 0
 try:
@@ -32,8 +33,25 @@ hf = """
 with open(FILENAME_VERSION_H, 'w+') as f:
     f.write(hf)
 
-    
 
-env.Replace(PROGNAME="firmware_%s" %str(tm.year)+('0'+str(tm.month))[-2:]+('0'+str(tm.day))[-2:] +'_'+ ('0'+str(tm.hour))[-2:] + ('0'+str(tm.minute))[-2:] + ('0'+str(tm.second))[-2:])
+
+project_name  = env.GetProjectOption("project_name")
+product_type  = env.GetProjectOption("board_type")
+sign          = env.GetProjectOption("signature")
+description   = env.GetProjectOption("description")
+
+sign = ''.join(hex(ord(c))[2:] for c in sign)
+dtbuild = (str(tm.year)+('0'+str(tm.month))[-2:]+('0'+str(tm.day))[-2:] +'_'+ ('0'+str(tm.hour))[-2:] + ('0'+str(tm.minute))[-2:] + ('0'+str(tm.second))[-2:])
+fw_url = ("\"fwurl\":\"https://raw.githubusercontent.com/Microtech-B/firmware/main/"+project_name+"/all_fw_bin/firmware_" +dtbuild+".bin\"")
+httpsCf = ("{\"type\":\""+product_type+"\",\"fwver\":\""+ dtbuild +"\",\"signature\":\""+sign+"\"," +fw_url+",\"description\":\""+description+"\"}")
+
+typeOTA = ''
+
+cf = ("{\"esp32httpsOTA\":" +httpsCf+"}")
+with open(FILENAME_VERCONFIG, 'w+') as f:
+  f.write(cf)
+
+
+env.Replace(PROGNAME="firmware_%s" %str(dtbuild))
 # env.Replace(PROGNAME="firmware_%s" %str (version+str(build_no)))
 # print env['PROGNAME'] 
