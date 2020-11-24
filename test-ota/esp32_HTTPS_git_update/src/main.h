@@ -8,7 +8,7 @@
 #include <utility.h>
 #include <version.h>
 
-#define Board_signature         "40622e6d457461615f68747470734f54413d31"
+#define Board_signature         "40622e6d457461615f68747470734f54413d31" 
 #define Product_Type            "esp32httpsOTA"
 
 #define FW_version            VERSION_DATETIME

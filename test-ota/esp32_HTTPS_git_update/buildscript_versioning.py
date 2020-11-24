@@ -35,14 +35,14 @@ with open(FILENAME_VERSION_H, 'w+') as f:
 
 
 gitRepo       = env.GetProjectOption("GitRepository")
-project_name  = env.GetProjectOption("project_name")
+GitDir        = env.GetProjectOption("GitDir")
 product_type  = env.GetProjectOption("board_type")
 sign          = env.GetProjectOption("signature")
 description   = env.GetProjectOption("description")
 
 sign = ''.join(hex(ord(c))[2:] for c in sign)
 dtbuild = (str(tm.year)+('0'+str(tm.month))[-2:]+('0'+str(tm.day))[-2:] +'_'+ ('0'+str(tm.hour))[-2:] + ('0'+str(tm.minute))[-2:] + ('0'+str(tm.second))[-2:])
-fw_url = ("\"fwurl\":\"https://raw.githubusercontent.com/"+gitRepo+"/main/"+project_name+"/all_fw_bin/firmware_" +dtbuild+".bin\"")
+fw_url = ("\"fwurl\":\"https://raw.githubusercontent.com/"+gitRepo+"/main/"+GitDir+"/firmware_" +dtbuild+".bin\"")
 httpsCf = ("{\"type\":\""+product_type+"\",\"fwver\":\""+ dtbuild +"\",\"signature\":\""+sign+"\"," +fw_url+",\"description\":\""+description+"\"}")
 
 typeOTA = ''
