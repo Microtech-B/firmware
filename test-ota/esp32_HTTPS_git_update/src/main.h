@@ -16,3 +16,6 @@
 #define Build_version           VERSION
 
 #define LED_BUILTIN             2
+
+//https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/all_fw_bin/firmware_20201124_151337.bin
+//https://raw.githubusercontent.com/Microtech-B/firmware/main/test-ota/all_fw_bin/firmware_20201124_151344.bin
